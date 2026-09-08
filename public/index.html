@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flashcards Espanol - Aprenda Espanhol</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <h1>Flashcards Espanol</h1>
+    <p class="subtitle">Aprenda espanhol, um cartao de cada vez</p>
+  </header>
+
+  <main class="app-main">
+
+    <div class="category-bar">
+      <label for="category-select">Categoria:</label>
+      <select id="category-select"></select>
+    </div>
+
+    <div class="progress-indicator" id="progress-indicator">Cartao 1 de 1</div>
+
+    <div class="card-stage">
+      <div class="flashcard" id="flashcard">
+        <div class="flashcard-inner">
+          <div class="flashcard-face flashcard-front">
+            <span class="face-label">Espanhol</span>
+            <p class="face-text" id="front-text">Hola</p>
+            <span class="flip-hint">Toque para virar</span>
+          </div>
+          <div class="flashcard-face flashcard-back">
+            <span class="face-label">Portugues</span>
+            <p class="face-text" id="back-text">Ola</p>
+            <span class="flip-hint">Toque para virar de volta</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="prev-btn" class="btn btn-secondary">Anterior</button>
+      <button id="shuffle-btn" class="btn btn-accent">Embaralhar</button>
+      <button id="next-btn" class="btn btn-secondary">Proximo</button>
+    </div>
+
+  </main>
+
+  <footer class="app-footer">
+    <p>Seu progresso e salvo automaticamente neste navegador.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
