@@ -1,4 +1,4 @@
-/* ---------- Reset basico e fontes ---------- */
+/* ---------- Reset básico e fontes ---------- */
 * {
   box-sizing: border-box;
 }
@@ -14,7 +14,7 @@ body {
   align-items: center;
 }
 
-/* ---------- Cabecalho ---------- */
+/* ---------- Cabeçalho ---------- */
 .app-header {
   text-align: center;
   padding: 28px 16px 8px;
@@ -33,7 +33,7 @@ body {
   opacity: 0.95;
 }
 
-/* ---------- Conteudo principal ---------- */
+/* ---------- Conteúdo principal ---------- */
 .app-main {
   width: 100%;
   max-width: 480px;
@@ -42,6 +42,50 @@ body {
   flex-direction: column;
   align-items: center;
   flex: 1;
+}
+
+/* ---------- Barra de nível ---------- */
+.level-bar {
+  width: 100%;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  justify-content: center;
+}
+
+.level-btn {
+  flex: 1;
+  max-width: 140px;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #24292f;
+  background: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.level-btn:active {
+  transform: translateY(2px);
+}
+
+.level-btn.active {
+  color: #ffffff;
+}
+
+.level-btn[data-level="iniciante"].active {
+  background: #38d39f;
+}
+
+.level-btn[data-level="mediano"].active {
+  background: #ffa63d;
+}
+
+.level-btn[data-level="avancado"].active {
+  background: #ff6b6b;
 }
 
 /* ---------- Barra de categoria ---------- */
@@ -82,7 +126,7 @@ body {
   letter-spacing: 0.5px;
 }
 
-/* ---------- Palco do cartao ---------- */
+/* ---------- Palco do cartão ---------- */
 .card-stage {
   width: 100%;
   display: flex;
@@ -192,7 +236,7 @@ body {
   color: #ffffff;
 }
 
-/* ---------- Rodape ---------- */
+/* ---------- Rodapé ---------- */
 .app-footer {
   padding: 14px;
   text-align: center;
@@ -219,5 +263,10 @@ body {
   .btn {
     padding: 10px 14px;
     font-size: 0.9rem;
+  }
+
+  .level-btn {
+    padding: 8px 6px;
+    font-size: 0.75rem;
   }
 }
