@@ -287,6 +287,7 @@ const LEVELS = [
 
 const STORAGE_KEY = 'flashcardsEspanolProgress';
 const STATS_STORAGE_KEY = 'flashcardsEspanolStats';
+const DIFFICULT_STORAGE_KEY = 'flashcardsEspanolDifficult';
 
 // ============================================================
 // ESTADO EM MEMÓRIA
@@ -298,6 +299,7 @@ let currentLevelId = LEVELS[0].id;
 let currentCategoryId = LEVELS[0].categories[0].id;
 let currentOrder = [];
 let currentPosition = 0;
+let reviewMode = false;
 
 // ============================================================
 // ELEMENTOS DA PÁGINA
@@ -317,6 +319,11 @@ const statsClose = document.getElementById('stats-close');
 const statCurrentStreakEl = document.getElementById('stat-current-streak');
 const statBestStreakEl = document.getElementById('stat-best-streak');
 const statTotalCardsEl = document.getElementById('stat-total-cards');
+const knowYesBtn = document.getElementById('know-yes-btn');
+const knowNoBtn = document.getElementById('know-no-btn');
+const reviewToggleBtn = document.getElementById('review-toggle-btn');
+const reviewIconEl = document.getElementById('review-icon');
+const reviewCountEl = document.getElementById('review-count');
 
 // ============================================================
 // FUNÇÕES AUXILIARES
@@ -470,6 +477,128 @@ function closeStats() {
 }
 
 // ============================================================
+// CARTÕES DIFÍCEIS (autoavaliação e modo de revisão)
+// ============================================================
+
+// Identifica um cartão de forma estável, mesmo se a ordem embaralhar.
+function cardKey(levelId, categoryId, index) {
+  return `${levelId}::${categoryId}::${index}`;
+}
+
+function loadDifficult() {
+  try {
+    const raw = localStorage.getItem(DIFFICULT_STORAGE_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    return new Set(Array.isArray(arr) ? arr : []);
+  } catch (err) {
+    console.warn('Não foi possível carregar os cartões difíceis:', err);
+    return new Set();
+  }
+}
+
+function saveDifficult(set) {
+  try {
+    localStorage.setItem(DIFFICULT_STORAGE_KEY, JSON.stringify(Array.from(set)));
+  } catch (err) {
+    console.warn('Não foi possível salvar os cartões difíceis:', err);
+  }
+}
+
+// Retorna os índices (dentro de category.cards) marcados como difíceis
+// para a categoria atual, na ordem original dos cartões.
+function getCategoryDifficultIndices(levelId, categoryId) {
+  const category = getCategoryById(levelId, categoryId);
+  const difficult = loadDifficult();
+  const indices = [];
+  category.cards.forEach((_, idx) => {
+    if (difficult.has(cardKey(levelId, categoryId, idx))) indices.push(idx);
+  });
+  return indices;
+}
+
+function currentCardKey() {
+  const cardIndex = currentOrder[currentPosition];
+  return cardKey(currentLevelId, currentCategoryId, cardIndex);
+}
+
+function updateReviewUI() {
+  const count = getCategoryDifficultIndices(currentLevelId, currentCategoryId).length;
+  reviewCountEl.textContent = count;
+  reviewIconEl.textContent = reviewMode ? '✅' : '🔁';
+  reviewToggleBtn.classList.toggle('active', reviewMode);
+  reviewToggleBtn.setAttribute('aria-pressed', String(reviewMode));
+  reviewToggleBtn.disabled = !reviewMode && count === 0;
+}
+
+function enterReviewMode() {
+  const indices = getCategoryDifficultIndices(currentLevelId, currentCategoryId);
+  if (indices.length === 0) return;
+  reviewMode = true;
+  currentOrder = indices;
+  currentPosition = 0;
+  renderCurrentCard();
+  updateReviewUI();
+}
+
+function exitReviewMode() {
+  reviewMode = false;
+  const category = getCategoryById(currentLevelId, currentCategoryId);
+  currentOrder = sequentialOrder(category.cards.length);
+  currentPosition = 0;
+  renderCurrentCard();
+  saveProgress();
+  updateReviewUI();
+}
+
+function toggleReviewMode() {
+  if (reviewMode) {
+    exitReviewMode();
+  } else {
+    enterReviewMode();
+  }
+}
+
+function markCurrentKnown() {
+  const difficult = loadDifficult();
+  difficult.delete(currentCardKey());
+  saveDifficult(difficult);
+
+  if (reviewMode) {
+    const indices = getCategoryDifficultIndices(currentLevelId, currentCategoryId);
+    if (indices.length === 0) {
+      exitReviewMode();
+      return;
+    }
+    // A lista encolheu: o próximo cartão já ocupa a mesma posição atual.
+    currentOrder = indices;
+    currentPosition = currentPosition % currentOrder.length;
+    renderCurrentCard();
+    updateReviewUI();
+  } else {
+    updateReviewUI();
+    goToNext();
+  }
+}
+
+function markCurrentUnknown() {
+  const difficult = loadDifficult();
+  difficult.add(currentCardKey());
+  saveDifficult(difficult);
+
+  if (reviewMode) {
+    // A lista mantém o mesmo tamanho: avança explicitamente para o próximo.
+    currentOrder = getCategoryDifficultIndices(currentLevelId, currentCategoryId);
+    currentPosition = (currentPosition + 1) % currentOrder.length;
+    renderCurrentCard();
+    updateReviewUI();
+  } else {
+    updateReviewUI();
+    goToNext();
+  }
+}
+
+// ============================================================
 // RENDERIZAÇÃO
 // ============================================================
 
@@ -503,7 +632,9 @@ function renderCurrentCard() {
   // Sempre volta a mostrar a frente do cartão ao trocar de cartão.
   flashcard.classList.remove('is-flipped');
 
-  progressIndicator.textContent = `Cartão ${currentPosition + 1} de ${category.cards.length}`;
+  progressIndicator.textContent = reviewMode
+    ? `Revisão: cartão ${currentPosition + 1} de ${currentOrder.length} difíceis`
+    : `Cartão ${currentPosition + 1} de ${currentOrder.length}`;
 
   incrementCardsViewed();
 }
@@ -513,36 +644,37 @@ function renderCurrentCard() {
 // ============================================================
 
 function goToNext() {
-  const category = getCategoryById(currentLevelId, currentCategoryId);
-  currentPosition = (currentPosition + 1) % category.cards.length;
+  currentPosition = (currentPosition + 1) % currentOrder.length;
   renderCurrentCard();
-  saveProgress();
+  if (!reviewMode) saveProgress();
 }
 
 function goToPrevious() {
-  const category = getCategoryById(currentLevelId, currentCategoryId);
-  currentPosition = (currentPosition - 1 + category.cards.length) % category.cards.length;
+  currentPosition = (currentPosition - 1 + currentOrder.length) % currentOrder.length;
   renderCurrentCard();
-  saveProgress();
+  if (!reviewMode) saveProgress();
 }
 
 function shuffleCurrentCategory() {
   currentOrder = shuffleOrder(currentOrder);
   currentPosition = 0;
   renderCurrentCard();
-  saveProgress();
+  if (!reviewMode) saveProgress();
 }
 
 function switchCategory(categoryId) {
+  reviewMode = false;
   const category = getCategoryById(currentLevelId, categoryId);
   currentCategoryId = category.id;
   currentOrder = sequentialOrder(category.cards.length);
   currentPosition = 0;
   renderCurrentCard();
   saveProgress();
+  updateReviewUI();
 }
 
 function switchLevel(levelId) {
+  reviewMode = false;
   const level = getLevelById(levelId);
   currentLevelId = level.id;
   currentCategoryId = level.categories[0].id;
@@ -552,6 +684,7 @@ function switchLevel(levelId) {
   renderCategoryOptions();
   renderCurrentCard();
   saveProgress();
+  updateReviewUI();
 }
 
 function toggleFlip() {
@@ -591,6 +724,7 @@ function init() {
   renderCategoryOptions();
   categorySelect.value = currentCategoryId;
   renderCurrentCard();
+  updateReviewUI();
 
   // Eventos
   flashcard.addEventListener('click', toggleFlip);
@@ -610,6 +744,15 @@ function init() {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !statsOverlay.hidden) closeStats();
   });
+  knowYesBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    markCurrentKnown();
+  });
+  knowNoBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    markCurrentUnknown();
+  });
+  reviewToggleBtn.addEventListener('click', toggleReviewMode);
 }
 
 init();
