@@ -286,6 +286,7 @@ const LEVELS = [
 ];
 
 const STORAGE_KEY = 'flashcardsEspanolProgress';
+const STATS_STORAGE_KEY = 'flashcardsEspanolStats';
 
 // ============================================================
 // ESTADO EM MEMÓRIA
@@ -310,6 +311,12 @@ const backText = document.getElementById('back-text');
 const prevBtn = document.getElementById('prev-btn');
 const nextBtn = document.getElementById('next-btn');
 const shuffleBtn = document.getElementById('shuffle-btn');
+const statsBtn = document.getElementById('stats-btn');
+const statsOverlay = document.getElementById('stats-overlay');
+const statsClose = document.getElementById('stats-close');
+const statCurrentStreakEl = document.getElementById('stat-current-streak');
+const statBestStreakEl = document.getElementById('stat-best-streak');
+const statTotalCardsEl = document.getElementById('stat-total-cards');
 
 // ============================================================
 // FUNÇÕES AUXILIARES
@@ -367,6 +374,102 @@ function loadProgress() {
 }
 
 // ============================================================
+// ESTATÍSTICAS (sequência de dias e cartões vistos)
+// ============================================================
+
+const DEFAULT_STATS = {
+  currentStreak: 0,
+  longestStreak: 0,
+  lastVisitDate: null,
+  totalCardsViewed: 0,
+};
+
+// Retorna a data de hoje no formato AAAA-MM-DD, usando o horário local
+// (evita problemas de fuso horário que o UTC do toISOString() causaria).
+function todayDateString() {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+// Diferença em dias entre duas datas no formato AAAA-MM-DD.
+function daysBetween(dateStrEarlier, dateStrLater) {
+  const d1 = new Date(`${dateStrEarlier}T00:00:00`);
+  const d2 = new Date(`${dateStrLater}T00:00:00`);
+  return Math.round((d2 - d1) / 86400000);
+}
+
+function loadStats() {
+  try {
+    const raw = localStorage.getItem(STATS_STORAGE_KEY);
+    if (!raw) return { ...DEFAULT_STATS };
+    return { ...DEFAULT_STATS, ...JSON.parse(raw) };
+  } catch (err) {
+    console.warn('Não foi possível carregar as estatísticas salvas:', err);
+    return { ...DEFAULT_STATS };
+  }
+}
+
+function saveStats(stats) {
+  try {
+    localStorage.setItem(STATS_STORAGE_KEY, JSON.stringify(stats));
+  } catch (err) {
+    console.warn('Não foi possível salvar as estatísticas:', err);
+  }
+}
+
+// Atualiza a sequência de dias seguidos ao carregar o app: se o último
+// acesso foi ontem, soma 1; se foi hoje, mantém; se foi há mais tempo
+// (ou nunca), reinicia a sequência em 1.
+function updateStreakOnLoad() {
+  const stats = loadStats();
+  const today = todayDateString();
+
+  if (stats.lastVisitDate === today) {
+    // já contabilizado hoje, não faz nada
+  } else if (stats.lastVisitDate) {
+    const diff = daysBetween(stats.lastVisitDate, today);
+    if (diff === 1) {
+      stats.currentStreak += 1;
+    } else if (diff > 1) {
+      stats.currentStreak = 1;
+    }
+    stats.lastVisitDate = today;
+  } else {
+    stats.currentStreak = 1;
+    stats.lastVisitDate = today;
+  }
+
+  stats.longestStreak = Math.max(stats.longestStreak || 0, stats.currentStreak);
+  saveStats(stats);
+  return stats;
+}
+
+function incrementCardsViewed() {
+  const stats = loadStats();
+  stats.totalCardsViewed = (stats.totalCardsViewed || 0) + 1;
+  saveStats(stats);
+}
+
+function renderStats() {
+  const stats = loadStats();
+  statCurrentStreakEl.textContent = stats.currentStreak;
+  statBestStreakEl.textContent = stats.longestStreak;
+  statTotalCardsEl.textContent = stats.totalCardsViewed;
+}
+
+function openStats() {
+  renderStats();
+  statsOverlay.hidden = false;
+}
+
+function closeStats() {
+  statsOverlay.hidden = true;
+}
+
+// ============================================================
 // RENDERIZAÇÃO
 // ============================================================
 
@@ -401,6 +504,8 @@ function renderCurrentCard() {
   flashcard.classList.remove('is-flipped');
 
   progressIndicator.textContent = `Cartão ${currentPosition + 1} de ${category.cards.length}`;
+
+  incrementCardsViewed();
 }
 
 // ============================================================
@@ -458,6 +563,8 @@ function toggleFlip() {
 // ============================================================
 
 function init() {
+  updateStreakOnLoad();
+
   const saved = loadProgress();
 
   if (saved && saved.levelId && getLevelById(saved.levelId)) {
@@ -494,6 +601,14 @@ function init() {
   levelBar.addEventListener('click', (e) => {
     const btn = e.target.closest('.level-btn');
     if (btn) switchLevel(btn.dataset.level);
+  });
+  statsBtn.addEventListener('click', openStats);
+  statsClose.addEventListener('click', closeStats);
+  statsOverlay.addEventListener('click', (e) => {
+    if (e.target === statsOverlay) closeStats();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !statsOverlay.hidden) closeStats();
   });
 }
 
