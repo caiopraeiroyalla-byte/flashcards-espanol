@@ -44,7 +44,10 @@
           <div class="flashcard-face flashcard-back">
             <span class="face-label">Português</span>
             <p class="face-text" id="back-text">Olá</p>
-            <span class="flip-hint">Toque para virar de volta</span>
+            <div class="know-buttons">
+              <button class="know-btn know-no" id="know-no-btn" type="button">❌ Não sabia</button>
+              <button class="know-btn know-yes" id="know-yes-btn" type="button">✅ Sabia</button>
+            </div>
           </div>
         </div>
       </div>
@@ -55,6 +58,13 @@
       <button id="prev-btn" class="btn btn-secondary">⬅ Anterior</button>
       <button id="shuffle-btn" class="btn btn-accent">🔀 Embaralhar</button>
       <button id="next-btn" class="btn btn-secondary">Próximo ➡</button>
+    </div>
+
+    <!-- Revisão de cartões difíceis -->
+    <div class="review-bar">
+      <button id="review-toggle-btn" class="review-btn" type="button" aria-pressed="false">
+        <span id="review-icon">🔁</span> Revisar difíceis <span class="review-badge" id="review-count">0</span>
+      </button>
     </div>
 
   </main>
