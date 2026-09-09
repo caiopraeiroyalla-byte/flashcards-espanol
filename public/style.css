@@ -16,8 +16,9 @@ body {
 
 /* ---------- Cabeçalho ---------- */
 .app-header {
+  position: relative;
   text-align: center;
-  padding: 28px 16px 8px;
+  padding: 28px 58px 8px;
   color: #ffffff;
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
@@ -31,6 +32,29 @@ body {
   margin: 6px 0 0;
   font-size: 1.05rem;
   opacity: 0.95;
+}
+
+/* ---------- Botão de estatísticas ---------- */
+.stats-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 1.2rem;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease;
+}
+
+.stats-btn:active {
+  transform: translateY(2px) scale(0.95);
 }
 
 /* ---------- Conteúdo principal ---------- */
@@ -246,6 +270,92 @@ body {
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
 }
 
+/* ---------- Painel de estatísticas ---------- */
+.stats-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+}
+
+.stats-overlay[hidden] {
+  display: none;
+}
+
+.stats-modal {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 30px 24px 24px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+.stats-modal h2 {
+  margin: 0 0 20px;
+  font-size: 1.3rem;
+  color: #24292f;
+}
+
+.stats-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #888;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.stats-close:hover,
+.stats-close:active {
+  background: #f0f0f0;
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fff7e6, #ffffff);
+  margin-bottom: 12px;
+}
+
+.stat-row:last-child {
+  margin-bottom: 0;
+}
+
+.stat-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.stat-value {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #24292f;
+}
+
+.stat-label {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  color: #666;
+}
+
 /* ---------- Responsivo ---------- */
 @media (max-width: 400px) {
   .app-header h1 {
@@ -268,5 +378,17 @@ body {
   .level-btn {
     padding: 8px 6px;
     font-size: 0.75rem;
+  }
+
+  .app-header {
+    padding: 24px 46px 8px;
+  }
+
+  .stats-btn {
+    width: 36px;
+    height: 36px;
+    top: 12px;
+    right: 10px;
+    font-size: 1rem;
   }
 }
