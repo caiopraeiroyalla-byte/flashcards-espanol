@@ -225,6 +225,42 @@ body {
   opacity: 0.8;
 }
 
+/* ---------- Botões de autoavaliação (verso do cartão) ---------- */
+.know-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.know-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.know-btn:active {
+  transform: translateY(2px);
+}
+
+.know-no {
+  background: rgba(255, 255, 255, 0.9);
+  color: #b3261e;
+}
+
+.know-yes {
+  background: rgba(255, 255, 255, 0.9);
+  color: #1e7b34;
+}
+
+/* Evita cliques acidentais nos botões antes de o cartão ser virado */
+.flashcard:not(.is-flipped) .know-buttons {
+  pointer-events: none;
+}
+
 /* ---------- Controles ---------- */
 .controls {
   display: flex;
@@ -258,6 +294,55 @@ body {
 .btn-accent {
   background: #6c5ce7;
   color: #ffffff;
+}
+
+/* ---------- Revisão de cartões difíceis ---------- */
+.review-bar {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 14px;
+}
+
+.review-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #24292f;
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.review-btn:active:not(:disabled) {
+  transform: translateY(2px);
+}
+
+.review-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.review-btn.active {
+  background: #6c5ce7;
+  color: #ffffff;
+}
+
+.review-badge {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-size: 0.8rem;
+}
+
+.review-btn.active .review-badge {
+  background: rgba(255, 255, 255, 0.25);
 }
 
 /* ---------- Rodapé ---------- */
