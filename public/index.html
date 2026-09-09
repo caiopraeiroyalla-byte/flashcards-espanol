@@ -3,25 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flashcards Espanol - Aprenda Espanhol</title>
+  <title>Flashcards Español - Aprenda Espanhol</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <header class="app-header">
-    <h1>Flashcards Espanol</h1>
-    <p class="subtitle">Aprenda espanhol, um cartao de cada vez</p>
+    <h1>🇪🇸 Flashcards Español</h1>
+    <p class="subtitle">Aprenda espanhol, um cartão de cada vez</p>
   </header>
 
   <main class="app-main">
 
+    <!-- Seletor de nível -->
+    <div class="level-bar" id="level-bar">
+      <button class="level-btn" data-level="iniciante">Iniciante</button>
+      <button class="level-btn" data-level="mediano">Médio</button>
+      <button class="level-btn" data-level="avancado">Avançado</button>
+    </div>
+
+    <!-- Seletor de categoria -->
     <div class="category-bar">
       <label for="category-select">Categoria:</label>
       <select id="category-select"></select>
     </div>
 
-    <div class="progress-indicator" id="progress-indicator">Cartao 1 de 1</div>
+    <!-- Indicador de progresso -->
+    <div class="progress-indicator" id="progress-indicator">Cartão 1 de 1</div>
 
+    <!-- O cartão principal -->
     <div class="card-stage">
       <div class="flashcard" id="flashcard">
         <div class="flashcard-inner">
@@ -31,24 +41,25 @@
             <span class="flip-hint">Toque para virar</span>
           </div>
           <div class="flashcard-face flashcard-back">
-            <span class="face-label">Portugues</span>
-            <p class="face-text" id="back-text">Ola</p>
+            <span class="face-label">Português</span>
+            <p class="face-text" id="back-text">Olá</p>
             <span class="flip-hint">Toque para virar de volta</span>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- Controles de navegação -->
     <div class="controls">
-      <button id="prev-btn" class="btn btn-secondary">Anterior</button>
-      <button id="shuffle-btn" class="btn btn-accent">Embaralhar</button>
-      <button id="next-btn" class="btn btn-secondary">Proximo</button>
+      <button id="prev-btn" class="btn btn-secondary">⬅ Anterior</button>
+      <button id="shuffle-btn" class="btn btn-accent">🔀 Embaralhar</button>
+      <button id="next-btn" class="btn btn-secondary">Próximo ➡</button>
     </div>
 
   </main>
 
   <footer class="app-footer">
-    <p>Seu progresso e salvo automaticamente neste navegador.</p>
+    <p>Seu progresso é salvo automaticamente neste navegador.</p>
   </footer>
 
   <script src="script.js"></script>
